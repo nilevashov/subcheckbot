@@ -1,0 +1,61 @@
+name: Deploy to production
+on:
+  push:
+    branches:
+      - main
+
+
+permissions:
+  contents: read
+  packages: write
+
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}/subcheckbot
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Login to GitHub Container Registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build docker image
+        run: docker build -t $IMAGE:latest .
+
+      - name: Push docker image
+        run: docker push $IMAGE:latest
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Copy docker-compose.yml from repository to prod server deploy path
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: ${{ vars.DEPLOY_PATH }}
+
+      - name: Connect to prod server via SSH and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          envs: IMAGE
+          script: |
+            cd ${{ vars.DEPLOY_PATH }}
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull $IMAGE:latest
+            docker compose up -d
