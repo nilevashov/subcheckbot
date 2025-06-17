@@ -16,7 +16,6 @@ case "$1" in
     shift
     echo "Starting bot WEBHOOK..."
     exec poetry run gunicorn webhook_app:webhook_app --worker-class uvicorn.workers.UvicornWorker --bind $WEBHOOK_APP_HOST:$WEBHOOK_APP_PORT
-    #exec poetry run gunicorn -k uvicorn.workers.UvicornWorker -b 0.0.0.0:$CAPI_PORT control_api.api.control_api_app
     ;;
   bot-polling)
     shift
