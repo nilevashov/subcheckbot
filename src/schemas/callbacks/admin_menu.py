@@ -25,7 +25,7 @@ class UserInfo(CallbackData, prefix="user_info"):
     delete_message: bool = False
 
     @model_validator(mode="after")
-    def model_validate(self):
+    def validate_parameter(self) -> "UserInfo":
         if self.parameter and not self.parameter_value:
             raise ValueError("parameter_value must be specified when parameter is specified")
         return self

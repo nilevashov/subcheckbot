@@ -26,6 +26,8 @@ start_router = Router()
     and (message.text == "/start" or message.text == "Главное меню"),
 )
 async def command_start_handler(message: Message) -> None:
+    assert message.from_user is not None
+
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -146,5 +148,8 @@ async def command_start_handler(message: Message) -> None:
 
 
 @start_router.callback_query(lambda callback: callback.data == "delete_message")
-async def delete_message(callback: CallbackQuery):
+async def delete_message(callback: CallbackQuery) -> None:
+    if not isinstance(callback.message, Message):
+        raise ValueError("callback.message must be Message")
+
     await callback.message.delete()

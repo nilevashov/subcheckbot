@@ -16,7 +16,12 @@ group_router = Router()
 
 
 @group_router.message(lambda message: message.chat.type == "supergroup")
-async def handler_group_message(message: Message):
+async def handler_group_message(message: Message) -> None:
+    assert message.bot is not None
+
+    if not message.from_user:
+        return
+
     if message.from_user.username and message.from_user.username == "GroupAnonymousBot":
         return
 
@@ -99,13 +104,16 @@ async def handler_group_message(message: Message):
                 keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
                 rd_key = f"subchecker:bot:mediagroup_id:{message.media_group_id}"
 
-                mention = (
-                    f"@{message.from_user.username}"
-                    if message.from_user.username
-                    else f'<a href="tg://user?id={message.from_user.id}">'
-                    f"{message.from_user.full_name}"
-                    f"</a>"
-                )
+                if message.from_user.username:
+                    mention = f"@{message.from_user.username}"
+                elif message.from_user.id and message.from_user.full_name:
+                    mention = (
+                        f'<a href="tg://user?id={message.from_user.id}">'
+                        f"{message.from_user.full_name}"
+                        f"</a>"
+                    )
+                else:
+                    raise ValueError("message.from_user.username or message.from_user.id not found")
 
                 if (
                     message.from_user.username

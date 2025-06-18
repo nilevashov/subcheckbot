@@ -16,10 +16,11 @@ from sqlalchemy import (
 
 from schemas.general import UserRoles
 
+
 Base = declarative_base()
 
 
-class User(Base):
+class User(Base): # type: ignore
     __tablename__ = "users"
     __table_args__ = {"schema": "processing"}
 
@@ -31,7 +32,7 @@ class User(Base):
     status = Column(Boolean, default=True)
 
 
-class Chat(Base):
+class Chat(Base): # type: ignore
     __tablename__ = "chats"
     __table_args__ = (
         UniqueConstraint("uid", "chat_id", name="uid_chatid_unique"),
@@ -47,7 +48,7 @@ class Chat(Base):
     type = Column(String, default="group")
 
 
-class ChatLink(Base):
+class ChatLink(Base): # type: ignore
     __tablename__ = "chat_links"
     __table_args__ = (
         UniqueConstraint("target_chat_id", "checked_chat_id", name="chat_link_unique"),

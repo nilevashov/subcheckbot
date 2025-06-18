@@ -9,6 +9,7 @@ from aiogram.types import (
 )
 
 from db.models import User
+from handlers import utils
 from schemas.callbacks.admin_menu import (
     UserInfo,
     UserInfoParameters,
@@ -27,7 +28,7 @@ admin_router.callback_query.middleware(AdminAuthMiddleware())
 
 
 @admin_router.message(F.text == "Администрирование")
-async def admin_menu(message: Message):
+async def admin_menu(message: Message) -> None:
     keyboard = ReplyKeyboardMarkup(
         resize_keyboard=True,
         keyboard=[
@@ -41,9 +42,17 @@ async def admin_menu(message: Message):
 
 @admin_router.message(F.text == "Пользователи")
 @admin_router.callback_query(UsersList.filter())
-async def get_users_list(update, callback_data: UsersList = None):
-    message = update.message if isinstance(update, CallbackQuery) else update
-    page_number = callback_data.page_number if isinstance(update, CallbackQuery) else 1
+async def get_users_list(update: Message | CallbackQuery, callback_data: UsersList = None) -> None:
+    if isinstance(update, Message):
+        message = update
+        page_number = 1
+    elif isinstance(update, CallbackQuery):
+        message = utils.get_callback_message(update)
+        if callback_data is None:
+            raise ValueError("CallbackQuery must have callback_data")
+        page_number = callback_data.page_number
+    else:
+        raise TypeError(f"Unexpected update type: {type(update)}")
 
     async with Session() as session:
         dbm = DBManager(session)
@@ -106,7 +115,7 @@ async def get_users_list(update, callback_data: UsersList = None):
     await message.answer(text=message_text, reply_markup=keyboard)
 
 
-async def send_user_info(message: Message, user: User, delete_message: bool = False):
+async def send_user_info(message: Message, user: User, delete_message: bool = False) -> None:
     message_text = f"<code>{'Имя пользователя':16.16} : {user.username}\n{'Статус':16.16} : {'✅' if user.status else '❌'}</code>"
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -143,16 +152,16 @@ async def send_user_info(message: Message, user: User, delete_message: bool = Fa
 
 
 @admin_router.callback_query(UserInfo.filter(F.parameter == None))
-async def get_user_info(callback: CallbackQuery, callback_data: UserInfo):
+async def get_user_info(callback: CallbackQuery, callback_data: UserInfo) -> None:
     async with Session() as session:
         dbm = DBManager(session)
         user = await dbm.get_user(uid=callback_data.user_id)
 
-    await send_user_info(callback.message, user=user, delete_message=callback_data.delete_message)
+    await send_user_info(utils.get_callback_message(callback), user=user, delete_message=callback_data.delete_message)
 
 
 @admin_router.callback_query(UserInfo.filter(F.parameter == UserInfoParameters.status))
-async def change_user_status(callback: CallbackQuery, callback_data: UserInfo):
+async def change_user_status(callback: CallbackQuery, callback_data: UserInfo) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -167,4 +176,4 @@ async def change_user_status(callback: CallbackQuery, callback_data: UserInfo):
                     user = await dbm.update_user(uid=user.id, status=False)
                     await rd.hset(rd_key, "status", "False")
 
-    await send_user_info(callback.message, user=user, delete_message=True)
+    await send_user_info(utils.get_callback_message(callback), user=user, delete_message=True)

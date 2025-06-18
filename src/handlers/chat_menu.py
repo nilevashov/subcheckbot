@@ -26,7 +26,7 @@ from . import utils
 chat_router = Router()
 
 
-async def send_chats_list(message):
+async def send_chats_list(message: Message) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -38,7 +38,7 @@ async def send_chats_list(message):
 
             message_text = "<code>Список ваших чатов:\n" "----------------------\n"
 
-            buttons = [[]]
+            buttons: list[list[InlineKeyboardButton]] = [[]]
 
             for i, group in enumerate(groups):
                 message_text += f"{i+1:2}  {group.title}\n"
@@ -59,18 +59,18 @@ async def send_chats_list(message):
 
 @chat_router.message(F.text == "Чаты")
 @chat_router.callback_query(ChatsList.filter())
-async def get_chats_list(update):
+async def get_chats_list(update: Message | CallbackQuery) -> None:
     if isinstance(update, Message):
         message = update
     elif isinstance(update, CallbackQuery):
-        message = update.message
+        message = utils.get_callback_message(update)
     else:
         return
 
     await send_chats_list(message)
 
 
-async def send_chat_info(message: Message, group_id: int):
+async def send_chat_info(message: Message, group_id: int) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -84,7 +84,7 @@ async def send_chat_info(message: Message, group_id: int):
 
             channels = await dbm.get_linked_chats(target_chat_id=group_id)
 
-            buttons = [[]]
+            buttons: list[list[InlineKeyboardButton]] = [[]]
 
             for i, channel in enumerate(channels):
                 message_text += f"{i+1:2}  {channel.title}\n"
@@ -128,12 +128,12 @@ async def send_chat_info(message: Message, group_id: int):
 
 
 @chat_router.callback_query(ChatInfo.filter())
-async def get_chat_info(callback: CallbackQuery, callback_data: ChatInfo):
-    await send_chat_info(callback.message, **callback_data.model_dump())
+async def get_chat_info(callback: CallbackQuery, callback_data: ChatInfo) -> None:
+    await send_chat_info(utils.get_callback_message(callback), **callback_data.model_dump())
 
 
 @chat_router.callback_query(ChannelsListForPin.filter())
-async def get_channel_list_for_pin(callback: CallbackQuery, callback_data: ChannelsListForPin):
+async def get_channel_list_for_pin(callback: CallbackQuery, callback_data: ChannelsListForPin) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -146,7 +146,7 @@ async def get_channel_list_for_pin(callback: CallbackQuery, callback_data: Chann
                 "-------------\n"
             )
 
-            buttons = [[]]
+            buttons: list[list[InlineKeyboardButton]] = [[]]
 
             for i, channel in enumerate(channels):
                 message_text += f"{i+1:2}  {channel.title}\n"
@@ -174,12 +174,12 @@ async def get_channel_list_for_pin(callback: CallbackQuery, callback_data: Chann
             keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
             await utils.send_message(
-                message=callback.message, message_text=message_text, keyboard=keyboard
+                message=utils.get_callback_message(callback), message_text=message_text, keyboard=keyboard
             )
 
 
 @chat_router.callback_query(PinChannelToChat.filter())
-async def pin_channel_to_chat(callback: CallbackQuery, callback_data: PinChannelToChat):
+async def pin_channel_to_chat(callback: CallbackQuery, callback_data: PinChannelToChat) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -194,19 +194,20 @@ async def pin_channel_to_chat(callback: CallbackQuery, callback_data: PinChannel
             #     f"<code>{channel.title}</code>, "
             #     f"чтобы писать в чате <code>{chat.title}</code>"
             # )
-    await send_chat_info(callback.message, group_id=callback_data.group_id)
+    await send_chat_info(utils.get_callback_message(callback), group_id=callback_data.group_id)
 
 
 @chat_router.callback_query(DeleteChat.filter())
-async def delete_chat_handler(callback: CallbackQuery, callback_data: DeleteChat):
+async def delete_chat_handler(callback: CallbackQuery, callback_data: DeleteChat) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
             group = await dbm.delete_chat(pk_id=callback_data.group_id)
 
-        await send_chats_list(callback.message)
+        await send_chats_list(utils.get_callback_message(callback))
 
-        await callback.message.answer(
+        message = utils.get_callback_message(callback)
+        await message.answer(
             text=f"Чат <code>{group.title}</code> успешно удален из бота"
         )
 
@@ -215,7 +216,9 @@ async def delete_chat_handler(callback: CallbackQuery, callback_data: DeleteChat
     F.chat_shared,
     lambda message: message.chat_shared.request_id == 2 and message.chat.type == "private",
 )
-async def chat_shared(message):
+async def chat_shared(message: Message) -> None:
+    assert message.chat_shared is not None
+
     try:
         chat_info = await bot.get_chat(chat_id=message.chat_shared.chat_id)
     except TelegramBadRequest:

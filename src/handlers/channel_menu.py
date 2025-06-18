@@ -27,7 +27,7 @@ from . import utils
 channel_router = Router()
 
 
-async def send_channels_list(message: Message):
+async def send_channels_list(message: Message) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -39,7 +39,7 @@ async def send_channels_list(message: Message):
 
             message_text = "<code>Список ваших каналов:\n" "----------------------\n"
 
-            buttons = [[]]
+            buttons: list[list[InlineKeyboardButton]] = [[]]
 
             for i, channel in enumerate(channels):
                 message_text += f"{i+1:2}  {channel.title}\n"
@@ -65,18 +65,18 @@ async def send_channels_list(message: Message):
 
 @channel_router.message(F.text == "Каналы")
 @channel_router.callback_query(ChannelsList.filter())
-async def get_channels_list(update, callback_data: ChannelsList = None):
+async def get_channels_list(update: Message | CallbackQuery, callback_data: ChannelsList = None) -> None:
     if isinstance(update, Message):
         message = update
     elif isinstance(update, CallbackQuery):
-        message = update.message
+        message = utils.get_callback_message(update)
     else:
         return
 
     await send_channels_list(message)
 
 
-async def send_channel_info(message: Message, channel_id: int, from_chat_section: bool = False):
+async def send_channel_info(message: Message, channel_id: int, from_chat_section: bool = False) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -137,12 +137,12 @@ async def send_channel_info(message: Message, channel_id: int, from_chat_section
 
 
 @channel_router.callback_query(ChannelInfo.filter())
-async def get_channel_info(callback: CallbackQuery, callback_data: ChannelInfo):
-    await send_channel_info(message=callback.message, **callback_data.model_dump())
+async def get_channel_info(callback: CallbackQuery, callback_data: ChannelInfo) -> None:
+    await send_channel_info(message=utils.get_callback_message(callback), **callback_data.model_dump())
 
 
 @channel_router.callback_query(UnpinChannel.filter())
-async def unpin_channel_from_chat(callback: CallbackQuery, callback_data: UnpinChannel):
+async def unpin_channel_from_chat(callback: CallbackQuery, callback_data: UnpinChannel) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -150,24 +150,26 @@ async def unpin_channel_from_chat(callback: CallbackQuery, callback_data: UnpinC
                 checked_chat_id=callback_data.channel_id, target_chat_id=callback_data.group_id
             )
 
-    await send_channel_info(message=callback.message, channel_id=callback_data.channel_id)
+    await send_channel_info(message=utils.get_callback_message(callback), channel_id=callback_data.channel_id)
 
 
 @channel_router.callback_query(DeleteChannel.filter())
-async def delete_channel(callback: CallbackQuery, callback_data: DeleteChannel):
+async def delete_channel(callback: CallbackQuery, callback_data: DeleteChannel) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
             await dbm.delete_chat(pk_id=callback_data.channel_id)
 
-    await send_channels_list(callback.message)
+    await send_channels_list(utils.get_callback_message(callback))
 
 
 @channel_router.message(
     F.chat_shared,
     lambda message: message.chat_shared.request_id == 1 and message.chat.type == "private",
 )
-async def channel_shared(message: Message):
+async def channel_shared(message: Message) -> None:
+    assert message.chat_shared is not None
+
     try:
         chat_info = await bot.get_chat(chat_id=message.chat_shared.chat_id)
     except TelegramBadRequest:

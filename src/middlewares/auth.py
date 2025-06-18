@@ -17,7 +17,7 @@ class AuthMiddleware(BaseMiddleware):
     ) -> Any:
         if isinstance(event, types.Message):
             message = event
-        elif isinstance(event, types.CallbackQuery):
+        elif isinstance(event, types.CallbackQuery) and isinstance(event.message, types.Message):
             message = event.message
         else:
             return await handler(event, data)

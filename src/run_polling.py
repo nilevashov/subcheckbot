@@ -4,7 +4,7 @@ import sys
 from bot import bot, dp
 
 
-async def main_polling():
+async def main_polling() -> None:
     await bot.delete_webhook()
     await dp.start_polling(bot)
 
