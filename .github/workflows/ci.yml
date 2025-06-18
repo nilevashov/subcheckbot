@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  type-check:
+  lint-and-typecheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,3 +25,6 @@ jobs:
 
       - name: Run mypy
         run: poetry run mypy src/
+
+      - name: Rub black
+        run: poetry run black --check src/
