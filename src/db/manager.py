@@ -4,7 +4,7 @@ from .models import User, Chat, ChatLink
 
 from typing import Literal
 
-from sqlalchemy import select, insert, update, delete, and_, func, asc
+from sqlalchemy import select, update, func, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.row import Row
 

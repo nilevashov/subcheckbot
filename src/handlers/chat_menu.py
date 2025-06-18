@@ -119,7 +119,7 @@ async def send_chat_info(message: Message, group_id: int) -> None:
                     ),
                     InlineKeyboardButton(
                         text="❌ Скрыть",
-                        callback_data=f"delete_message",
+                        callback_data="delete_message",
                     ),
                 ]
             )

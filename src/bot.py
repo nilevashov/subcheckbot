@@ -31,4 +31,4 @@ bot = Bot(config.telegram.bot_token, default=DefaultBotProperties(parse_mode=Par
 dp = Dispatcher()
 dp.startup.register(on_startup)
 
-import handlers
+import handlers  # noqa: E402, F401

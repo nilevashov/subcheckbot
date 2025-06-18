@@ -120,7 +120,7 @@ async def send_channel_info(
                     ),
                     InlineKeyboardButton(
                         text="❌ Скрыть",
-                        callback_data=f"delete_message",
+                        callback_data="delete_message",
                     ),
                 ],
             ]

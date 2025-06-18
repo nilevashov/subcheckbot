@@ -105,7 +105,7 @@ async def get_users_list(update: Message | CallbackQuery, callback_data: UsersLi
 
         try:
             await message.delete()
-        except:
+        except Exception:
             pass
 
         keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -147,13 +147,13 @@ async def send_user_info(message: Message, user: User, delete_message: bool = Fa
     if delete_message:
         try:
             await message.delete()
-        except:
+        except Exception:
             pass
 
     await message.answer(text=message_text, reply_markup=keyboard)
 
 
-@admin_router.callback_query(UserInfo.filter(F.parameter == None))
+@admin_router.callback_query(UserInfo.filter(F.parameter == None))  # noqa: E711
 async def get_user_info(callback: CallbackQuery, callback_data: UserInfo) -> None:
     async with Session() as session:
         dbm = DBManager(session)
