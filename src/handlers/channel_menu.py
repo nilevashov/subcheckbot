@@ -65,7 +65,9 @@ async def send_channels_list(message: Message) -> None:
 
 @channel_router.message(F.text == "Каналы")
 @channel_router.callback_query(ChannelsList.filter())
-async def get_channels_list(update: Message | CallbackQuery, callback_data: ChannelsList = None) -> None:
+async def get_channels_list(
+    update: Message | CallbackQuery, callback_data: ChannelsList = None
+) -> None:
     if isinstance(update, Message):
         message = update
     elif isinstance(update, CallbackQuery):
@@ -76,7 +78,9 @@ async def get_channels_list(update: Message | CallbackQuery, callback_data: Chan
     await send_channels_list(message)
 
 
-async def send_channel_info(message: Message, channel_id: int, from_chat_section: bool = False) -> None:
+async def send_channel_info(
+    message: Message, channel_id: int, from_chat_section: bool = False
+) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -138,7 +142,9 @@ async def send_channel_info(message: Message, channel_id: int, from_chat_section
 
 @channel_router.callback_query(ChannelInfo.filter())
 async def get_channel_info(callback: CallbackQuery, callback_data: ChannelInfo) -> None:
-    await send_channel_info(message=utils.get_callback_message(callback), **callback_data.model_dump())
+    await send_channel_info(
+        message=utils.get_callback_message(callback), **callback_data.model_dump()
+    )
 
 
 @channel_router.callback_query(UnpinChannel.filter())
@@ -150,7 +156,9 @@ async def unpin_channel_from_chat(callback: CallbackQuery, callback_data: UnpinC
                 checked_chat_id=callback_data.channel_id, target_chat_id=callback_data.group_id
             )
 
-    await send_channel_info(message=utils.get_callback_message(callback), channel_id=callback_data.channel_id)
+    await send_channel_info(
+        message=utils.get_callback_message(callback), channel_id=callback_data.channel_id
+    )
 
 
 @channel_router.callback_query(DeleteChannel.filter())

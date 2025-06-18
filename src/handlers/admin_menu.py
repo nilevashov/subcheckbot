@@ -125,9 +125,11 @@ async def send_user_info(message: Message, user: User, delete_message: bool = Fa
                     callback_data=UserInfo(
                         user_id=user.id,
                         parameter=UserInfoParameters.status,
-                        parameter_value=UserInfoParameterValue.off
-                        if user.status
-                        else UserInfoParameterValue.on,
+                        parameter_value=(
+                            UserInfoParameterValue.off
+                            if user.status
+                            else UserInfoParameterValue.on
+                        ),
                         delete_message=True,
                     ).pack(),
                 )
@@ -157,7 +159,11 @@ async def get_user_info(callback: CallbackQuery, callback_data: UserInfo) -> Non
         dbm = DBManager(session)
         user = await dbm.get_user(uid=callback_data.user_id)
 
-    await send_user_info(utils.get_callback_message(callback), user=user, delete_message=callback_data.delete_message)
+    await send_user_info(
+        utils.get_callback_message(callback),
+        user=user,
+        delete_message=callback_data.delete_message,
+    )
 
 
 @admin_router.callback_query(UserInfo.filter(F.parameter == UserInfoParameters.status))

@@ -87,10 +87,10 @@ class DBConfig(BaseModel):
 
 
 class Config(BaseSettings):
-    telegram: TelegramConfig = Field(default_factory=TelegramConfig) # type: ignore[arg-type]
+    telegram: TelegramConfig = Field(default_factory=TelegramConfig)  # type: ignore[arg-type]
     redis: RedisConfig = Field(default_factory=RedisConfig)
     sentry: SentryConfig = Field(default_factory=SentryConfig)
-    db: DBConfig = Field(default_factory=DBConfig) # type: ignore[arg-type]
+    db: DBConfig = Field(default_factory=DBConfig)  # type: ignore[arg-type]
     debug: Optional[bool] = Field(default=False)
 
     model_config = SettingsConfigDict(

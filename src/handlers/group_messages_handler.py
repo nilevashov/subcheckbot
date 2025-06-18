@@ -88,7 +88,8 @@ async def handler_group_message(message: Message) -> None:
                     and user_channel_status.status != ChatMemberStatus.ADMINISTRATOR
                 ):
                     invite_link = (
-                        f"https://t.me/{chat_obj.username}" if chat_obj.username
+                        f"https://t.me/{chat_obj.username}"
+                        if chat_obj.username
                         else chat_obj.invite_link
                     )
                     buttons.append(
@@ -113,7 +114,9 @@ async def handler_group_message(message: Message) -> None:
                         f"</a>"
                     )
                 else:
-                    raise ValueError("message.from_user.username or message.from_user.id not found")
+                    raise ValueError(
+                        "message.from_user.username or message.from_user.id not found"
+                    )
 
                 if (
                     message.from_user.username

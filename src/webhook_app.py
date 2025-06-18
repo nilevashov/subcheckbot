@@ -37,6 +37,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 webhook_app = FastAPI(lifespan=lifespan)
 Instrumentator().instrument(webhook_app).expose(webhook_app)
 
+
 @webhook_app.post(config.telegram.webhook.path)
 async def webhook_handler(update: Update) -> dict[str, str]:
     try:
@@ -45,7 +46,11 @@ async def webhook_handler(update: Update) -> dict[str, str]:
         if update.message:
             from_username = update.message.from_user.username if update.message.from_user else None
         elif update.callback_query:
-            from_username = update.callback_query.from_user.username if update.callback_query.from_user else None
+            from_username = (
+                update.callback_query.from_user.username
+                if update.callback_query.from_user
+                else None
+            )
 
         if config.debug:
             logger.info(f"Got update | update_id={update.update_id} | from={from_username}")

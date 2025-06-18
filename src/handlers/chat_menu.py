@@ -48,7 +48,9 @@ async def send_chats_list(message: Message) -> None:
                     )
                 )
 
-            buttons.append([InlineKeyboardButton(text="❌ Скрыть", callback_data="delete_message")])
+            buttons.append(
+                [InlineKeyboardButton(text="❌ Скрыть", callback_data="delete_message")]
+            )
 
             message_text += "</code>"
 
@@ -133,7 +135,9 @@ async def get_chat_info(callback: CallbackQuery, callback_data: ChatInfo) -> Non
 
 
 @chat_router.callback_query(ChannelsListForPin.filter())
-async def get_channel_list_for_pin(callback: CallbackQuery, callback_data: ChannelsListForPin) -> None:
+async def get_channel_list_for_pin(
+    callback: CallbackQuery, callback_data: ChannelsListForPin
+) -> None:
     async with Session() as session:
         async with session.begin():
             dbm = DBManager(session)
@@ -174,7 +178,9 @@ async def get_channel_list_for_pin(callback: CallbackQuery, callback_data: Chann
             keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
             await utils.send_message(
-                message=utils.get_callback_message(callback), message_text=message_text, keyboard=keyboard
+                message=utils.get_callback_message(callback),
+                message_text=message_text,
+                keyboard=keyboard,
             )
 
 
@@ -207,9 +213,7 @@ async def delete_chat_handler(callback: CallbackQuery, callback_data: DeleteChat
         await send_chats_list(utils.get_callback_message(callback))
 
         message = utils.get_callback_message(callback)
-        await message.answer(
-            text=f"Чат <code>{group.title}</code> успешно удален из бота"
-        )
+        await message.answer(text=f"Чат <code>{group.title}</code> успешно удален из бота")
 
 
 @chat_router.message(

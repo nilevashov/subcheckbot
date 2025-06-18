@@ -147,8 +147,8 @@ class DBManager:
 
     async def delete_chat_link(self, target_chat_id: int, checked_chat_id: int) -> ChatLink:
         stmt = select(ChatLink).where(
-            (ChatLink.target_chat_id == target_chat_id) &
-            (ChatLink.checked_chat_id == checked_chat_id)
+            (ChatLink.target_chat_id == target_chat_id)
+            & (ChatLink.checked_chat_id == checked_chat_id)
         )
         chat_link: ChatLink = (await self.session.execute(stmt)).scalars().one()
         await self.session.delete(chat_link)

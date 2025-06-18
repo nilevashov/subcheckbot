@@ -32,4 +32,3 @@ dp = Dispatcher()
 dp.startup.register(on_startup)
 
 import handlers
-
