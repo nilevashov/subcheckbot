@@ -9,7 +9,7 @@ from aiogram.types import (
     ChatAdministratorRights,
 )
 
-from schemas.general import UserRoles
+from bot.schemas.general import UserRoles
 from settings import config
 from db import Session, rd
 from db.manager import DBManager

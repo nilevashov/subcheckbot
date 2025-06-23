@@ -1,14 +1,14 @@
 import asyncio
 import logging
 import sys
-from bot import bot, dp
+from bot.bot import bot, dp
 
 
-async def main_polling() -> None:
+async def run_polling() -> None:
     await bot.delete_webhook()
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    asyncio.run(main_polling())
+    asyncio.run(run_polling())

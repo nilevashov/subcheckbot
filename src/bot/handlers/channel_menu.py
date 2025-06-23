@@ -8,21 +8,19 @@ from aiogram.types import (
 from aiogram.exceptions import TelegramBadRequest
 from aiogram import F
 
-from bot import bot
+from bot import bot, utils
 from db import Session
 from db.manager import DBManager
 
 from sqlalchemy.exc import NoResultFound, IntegrityError
 
-from schemas.callbacks.channel_menu import (
+from bot.schemas.callbacks.channel_menu import (
     ChannelsList,
     ChannelInfo,
     UnpinChannel,
     DeleteChannel,
 )
-from schemas.callbacks.chat_menu import ChatInfo
-from . import utils
-
+from bot.schemas.callbacks.chat_menu import ChatInfo
 
 channel_router = Router()
 

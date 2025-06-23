@@ -1,3 +1,5 @@
+
+import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
@@ -8,6 +10,7 @@ from settings import config
 import sentry_sdk
 import logging
 import sys
+
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
@@ -31,4 +34,4 @@ bot = Bot(config.telegram.bot_token, default=DefaultBotProperties(parse_mode=Par
 dp = Dispatcher()
 dp.startup.register(on_startup)
 
-import handlers  # noqa: E402, F401
+from . import handlers  # noqa: E402, F401, F811

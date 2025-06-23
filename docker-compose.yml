@@ -4,6 +4,8 @@ services:
   app:
     container_name: subbot-webhook
     image: ${REGISTRY_URL}subcheckbot:latest
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: ["bot-webhook"]
     restart: always
     volumes:
@@ -11,8 +13,3 @@ services:
     ports:
       - "${WEBHOOK_APP_PORT}:${WEBHOOK_APP_PORT}"
     env_file: .env
-
-
-volumes:
-  pgdata:
-  redisdata:

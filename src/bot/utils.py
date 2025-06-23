@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, Message, CallbackQuery
 from aiogram.exceptions import TelegramBadRequest
-from bot import bot
+from .bot import bot
 
 
 async def send_message(

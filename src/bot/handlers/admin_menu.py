@@ -9,8 +9,8 @@ from aiogram.types import (
 )
 
 from db.models import User
-from handlers import utils
-from schemas.callbacks.admin_menu import (
+from bot import utils
+from bot.schemas.callbacks.admin_menu import (
     UserInfo,
     UserInfoParameters,
     UserInfoParameterValue,
@@ -19,7 +19,7 @@ from schemas.callbacks.admin_menu import (
 from settings import config
 from db import Session, rd
 from db.manager import DBManager
-from middlewares.admin_auth import AdminAuthMiddleware
+from bot.middlewares.admin_auth import AdminAuthMiddleware
 
 admin_router = Router()
 

@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 import sentry_sdk
 from loguru import logger
 
-from bot import dp, bot
+from .bot import dp, bot
 
 
 @asynccontextmanager

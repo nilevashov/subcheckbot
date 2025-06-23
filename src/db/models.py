@@ -14,7 +14,7 @@ from sqlalchemy import (
     text,
 )
 
-from schemas.general import UserRoles
+from bot.schemas.general import UserRoles
 
 
 Base = declarative_base()
