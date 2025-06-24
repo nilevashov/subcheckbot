@@ -25,4 +25,3 @@
 2. Для запуска bot-webhook выполнить команду `./entrypoint.sh control-api`
 или
 3. Для запуска bot-polling выполнить команду `./entrypoint.sh bot-polling`
-4. 
