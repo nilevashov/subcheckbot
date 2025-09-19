@@ -4,7 +4,7 @@ from aiogram.enums import ChatMemberStatus
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 
 from settings import config
-from bot import bot
+from bot.bot import bot
 from db import Session, rd
 from db.manager import DBManager
 
