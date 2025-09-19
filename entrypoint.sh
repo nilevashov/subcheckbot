@@ -16,7 +16,7 @@ case "$1" in
   bot-webhook)
     shift
     echo "Starting bot WEBHOOK..."
-    exec poetry run gunicorn bot.webhook_app:webhook_app -c api/gunicorn.conf.py "$@"
+    exec poetry run gunicorn bot.webhook_app:webhook_app -c bot/gunicorn.conf.py "$@"
     ;;
   bot-polling)
     shift
