@@ -11,5 +11,5 @@ services:
     volumes:
       - /etc/ssl/:/etc/ssl/
     ports:
-      - "${WEBHOOK_APP_PORT}:${WEBHOOK_APP_PORT}"
+      - "${WEBHOOK_APP_HOST}:${WEBHOOK_APP_PORT}:${WEBHOOK_APP_PORT}"
     env_file: .env
