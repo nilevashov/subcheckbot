@@ -93,9 +93,6 @@ class Config(BaseSettings):
     db: DBConfig = Field(default_factory=DBConfig)  # type: ignore[arg-type]
     debug: Optional[bool] = Field(default=False)
 
-    app_host: str = Field(default="127.0.0.1", alias="APP_HOST")
-    app_port: str = Field(default="5000", alias="APP_PORT")
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
